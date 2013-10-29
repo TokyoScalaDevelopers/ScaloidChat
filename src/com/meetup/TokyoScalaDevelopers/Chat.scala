@@ -7,27 +7,19 @@ import android.widget.ScrollView
 
 class ChatActivity extends SActivity {
   lazy val logVerticalLayout = new SVerticalLayout
-  lazy val logScrollView = new SScrollView {
-    this += logVerticalLayout
-  }
+  lazy val logScrollView = new SScrollView += logVerticalLayout
   lazy val textEntry = new SEditText()
   lazy val submitButton = new SButton().text("Send")
   lazy val textEntryArea = new SLinearLayout {
-    this += textEntry
-      .<<
-        .Weight(1)
-      .>>
+    this += textEntry.<<.Weight(1).>>
 
     this += submitButton
-      .<<
-        .Weight(2)
-      .>>
+      .<<.Weight(2).>>
       .onClick({
         val message = textEntry.text.toString
         textEntry.text("")
         sendMessage(message)
       })
-
   }
 
   onCreate {
