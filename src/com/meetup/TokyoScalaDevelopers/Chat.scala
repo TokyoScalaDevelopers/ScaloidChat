@@ -44,10 +44,11 @@ class ChatActivity extends SActivity {
     ws.connect("ws://echo.websocket.org", new WebSocketHandler {
       override def onOpen {
         receivedMessage("DEBUG", "Connected to server")
+        ws.sendTextMessage("Hello, world!")
       }
 
       override def onTextMessage(data: String) {
-        receivedMessage("DEBUG", data)
+        receivedMessage("DEBUG (Received)", data)
       }
 
       override def onClose(code: Int, reason: String) {
