@@ -68,9 +68,12 @@ class ChatActivity extends SActivity {
   }
 
   def receivedMessage(name: String, message: String) {
-    val nameView = new STextView().text(name)
+    val nameView = new STextView().text(s"$name: ")
     val messageView = new STextView().text(message)
 
-    logVerticalLayout += nameView += messageView
+    logVerticalLayout += new SLinearLayout {
+      this += nameView
+      this += messageView
+    }
   }
 }
