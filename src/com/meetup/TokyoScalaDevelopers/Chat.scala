@@ -66,6 +66,8 @@ class ChatActivity extends SActivity {
       this += nameView.<<.Weight(3).>>
     }
     logScrollView.fullScroll(View.FOCUS_DOWN)
+
+    ws.sendTextMessage(message)
   }
 
   def receivedMessage(name: String, message: String) {
