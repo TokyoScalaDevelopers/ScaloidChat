@@ -5,6 +5,10 @@ import android.graphics.Color
 import android.view.View
 import android.widget.ScrollView
 
+import de.tavendo.autobahn.WebSocketConnection
+import de.tavendo.autobahn.WebSocketException
+import de.tavendo.autobahn.WebSocketHandler
+
 class ChatActivity extends SActivity {
   lazy val logVerticalLayout = new SVerticalLayout
   lazy val logScrollView = new SScrollView += logVerticalLayout
@@ -22,6 +26,8 @@ class ChatActivity extends SActivity {
       })
   }
 
+  lazy val ws = new WebSocketConnection
+
   onCreate {
     contentView = new SRelativeLayout {
 
@@ -32,6 +38,22 @@ class ChatActivity extends SActivity {
 
       this += textEntryArea.<<.alignParentBottom.>>
     }
+  }
+
+  onStart {
+    ws.connect("ws://echo.websocket.org", new WebSocketHandler {
+      override def onOpen {
+        receivedMessage("DEBUG", "Connected to server")
+      }
+
+      override def onTextMessage(data: String) {
+        receivedMessage("DEBUG", data)
+      }
+
+      override def onClose(code: Int, reason: String) {
+        receivedMessage("DEBUG", s"Disconnected: $reason ($code)")
+      }
+    })
   }
 
   def sendMessage(message: String) {
