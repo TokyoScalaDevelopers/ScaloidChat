@@ -23,14 +23,20 @@ object JsonHandler {
   def getStringListOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toList.map(_.toString))
 
   def parsePacket(data: String): Option[Packet] = {
-    Option(mapper.readTree(data)).flatMap({ node =>
+    Option(mapper.readTree(data)).map({ node =>
       for(
         kind <- getStringOption(node, "kind");
         user <- getStringOption(node, "user");
         message <- getStringOption(node, "message");
         members <- getStringListOption(node, "members")
       ) yield Packet(kind, user, message, members)
-    })
+    }).flatten
+  }
+
+  def stringToJson(message: String): String = {
+    val node = mapper.createObjectNode()
+    node.put("text", message)
+    node.toString
   }
 }
 
@@ -66,14 +72,19 @@ class ChatActivity extends SActivity {
   }
 
   onStart {
-    ws.connect("ws://echo.websocket.org", new WebSocketHandler {
+    ws.connect("ws://172.16.255.108:9000/room/chat?username=Devon", new WebSocketHandler {
       override def onOpen {
         receivedMessage("DEBUG", "Connected to server")
-        ws.sendTextMessage("Hello, world!")
       }
 
       override def onTextMessage(data: String) {
-        receivedMessage("DEBUG (Received)", data)
+        val packet = JsonHandler.parsePacket(data)
+        packet.map(_ match {
+          case Packet("talk", user, message, _) => receivedMessage(user, message)
+          case Packet("join", user, _, _) => receivedMessage("JOINED", user)
+          case Packet("quit", user, _, _) => receivedMessage("QUIT", user)
+          case m => receivedMessage("DEBUG", s"$m")
+        })
       }
 
       override def onClose(code: Int, reason: String) {
@@ -92,7 +103,7 @@ class ChatActivity extends SActivity {
     }
     logScrollView.fullScroll(View.FOCUS_DOWN)
 
-    ws.sendTextMessage(message)
+    ws.sendTextMessage(JsonHandler.stringToJson(message))
   }
 
   def receivedMessage(name: String, message: String) {
