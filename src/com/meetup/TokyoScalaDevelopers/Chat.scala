@@ -9,6 +9,31 @@ import de.tavendo.autobahn.WebSocketConnection
 import de.tavendo.autobahn.WebSocketException
 import de.tavendo.autobahn.WebSocketHandler
 
+import org.codehaus.jackson.map.ObjectMapper
+import org.codehaus.jackson.JsonNode
+
+case class Packet(kind: String, user: String, message: String, members: List[String])
+
+object JsonHandler {
+  import scala.collection.JavaConversions._
+
+  lazy val mapper = new ObjectMapper()
+
+  def getStringOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toString)
+  def getStringListOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toList.map(_.toString))
+
+  def parsePacket(data: String): Option[Packet] = {
+    Option(mapper.readTree(data)).flatMap({ node =>
+      for(
+        kind <- getStringOption(node, "kind");
+        user <- getStringOption(node, "user");
+        message <- getStringOption(node, "message");
+        members <- getStringListOption(node, "members")
+      ) yield Packet(kind, user, message, members)
+    })
+  }
+}
+
 class ChatActivity extends SActivity {
   lazy val logVerticalLayout = new SVerticalLayout
   lazy val logScrollView = new SScrollView += logVerticalLayout
