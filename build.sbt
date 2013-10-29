@@ -2,7 +2,7 @@ import android.Keys._
 
 android.Plugin.androidBuild
 
-name := "hello-scaloid-sbt"
+name := "ScaloidChat"
 
 scalaVersion := "2.10.3"
 
