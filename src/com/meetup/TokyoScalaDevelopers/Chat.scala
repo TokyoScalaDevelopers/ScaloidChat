@@ -19,8 +19,8 @@ object JsonHandler {
 
   lazy val mapper = new ObjectMapper()
 
-  def getStringOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toString)
-  def getStringListOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toList.map(_.toString))
+  def getStringOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.asText)
+  def getStringListOption(node: JsonNode, key: String) = Option(node.get(key)).map(_.toList.map(_.asText))
 
   def parsePacket(data: String): Option[Packet] = {
     Option(mapper.readTree(data)).map({ node =>
